@@ -1,0 +1,46 @@
+<!-- chat.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="chat-container"></div>
+    <form id="chat-form">
+        {% csrf_token %}
+        <input type="text" id="user-message" name="user_message">
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#chat-form').submit(function(event) {
+                event.preventDefault();
+                var userMessage = $('#user-message').val();
+                $('#chat-container').append('<p>You: ' + userMessage + '</p>');
+                $.ajax({
+                    type: 'POST',
+                    url: '/chatbot1/chat/',  // Update the URL to match your Django URL configuration
+                    data: {'user_message': userMessage},
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if ('response' in response) {
+                            var botResponse = response['response'][0]['text'];
+                            $('#chat-container').append('<p>Bot: ' + botResponse + '</p>');
+                        } else {
+                            $('#chat-container').append('<p>Error: Failed to get response from bot.</p>');
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        $('#chat-container').append('<p>Error: ' + errmsg + '</p>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

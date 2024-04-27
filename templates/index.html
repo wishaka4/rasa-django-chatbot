@@ -1,0 +1,28 @@
+<!-- chatbot/templates/chatbot/index.html -->
+
+<form id="chat-form">
+    <input type="text" id="user-message" name="user_message">
+    <button type="submit">Send</button>
+</form>
+<div id="chat-container"></div>
+
+<script>
+document.getElementById('chat-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var userMessage = document.getElementById('user-message').value;
+    fetch('/chatbot1/chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ user_message: userMessage })
+    })
+    .then(response => response.json())
+    .then(data => {
+        var chatContainer = document.getElementById('chat-container');
+        chatContainer.innerHTML += '<p>User: ' + userMessage + '</p>';
+        chatContainer.innerHTML += '<p>Bot: ' + data.response[0].text + '</p>';
+    });
+});
+</script>
